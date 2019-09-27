@@ -14,10 +14,9 @@ WEEKDAYS = {
 }
 
 
-def parse_schedule(path: str):
+def parse_schedule(schedule: str) -> List[dict]:
     """ Parses a given file returning a list of section instances """
-    with open(path) as f:
-        lines = f.readlines()
+    lines = schedule.splitlines()
     sections = []
     n = 0  # Line counter
     while (len(lines) > n):

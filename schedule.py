@@ -7,18 +7,18 @@ from oauth2client import client, file, tools
 from icalendar import prop
 from scrapper import scrap_no_school_events, scrap_term_dates
 from text_parser import parse_schedule
+
 TEST = True
 
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
 
 TZ = pytz.timezone("America/New_York")
-PATH_TO_SCHEDULE = "schedule.txt"
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/calendar'
 
 
-def main(year, term):
+def main(year: str, term: str, schedule: str):
     start_date, end_date = get_term_interval(year, term)
     no_school_events = scrap_no_school_events(year, term)
     for event in no_school_events:
@@ -26,7 +26,7 @@ def main(year, term):
     exdate = make_exdate_string_template(no_school_events)
     service = get_calendar_service()
     cal_id = create_calendar(service, year, term)
-    sections = parse_schedule(PATH_TO_SCHEDULE)
+    sections = parse_schedule(schedule)
     for section in sections:
         set_real_section_datetimes(section, start_date)
         make_rrule(section, end_date)
@@ -36,11 +36,11 @@ def main(year, term):
         create_event(service, cal_id, event)
 
     global TEST
-    if TEST:
-        answer = input("THIS WAS A TEST RUN. Do you want to do a real run now? (y/n): ")
-        if answer.lower().startswith("y"):
+    if TEST and __name__ == "__main__":
+        answer = input("\nTHIS WAS A TEST RUN. Do you want to do a real run now? (y/n): ")
+        if answer.strip().lower().startswith("y"):
             TEST = False
-            main(year, term)
+            main(year, term, schedule)
 
 
 def get_term_interval(year, term):
@@ -159,4 +159,6 @@ def get_calendar_service():
 
 
 if __name__ == '__main__':
-    main(input("Year: "), input("Term (Fall, Spring): "))
+    with open("schedule.txt") as f:
+        schedule = f.read()
+    main(input("Year: "), input("Term (Fall, Spring): "), schedule)
