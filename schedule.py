@@ -8,6 +8,8 @@ from icalendar import prop
 from scrapper import scrap_no_school_events, scrap_term_dates
 from text_parser import parse_schedule
 
+from typing import List
+
 TEST = True
 
 DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S%z"
@@ -29,9 +31,12 @@ def main(year: str, term: str, schedule: str):
     sections = parse_schedule(schedule)
     for section in sections:
         set_real_section_datetimes(section, start_date)
-        make_rrule(section, end_date)
-        make_exdate(section, exdate)
-        create_event(service, cal_id, section)
+        if section.get('dates', default=None):
+            create_non_periodic_section(service, cal_id, section)
+        else:
+            make_rrule(section, end_date)
+            make_exdate(section, exdate)  # Might be buggy without RRULE
+            create_event(service, cal_id, section)
     for event in no_school_events:
         create_event(service, cal_id, event)
 
@@ -91,6 +96,21 @@ def set_real_section_datetimes(section, term_start_datetime):
     start_time, end_time = section.pop("start_time"), section.pop("end_time")
     section["dtstart"] = weekday.replace(hour=start_time.hour, minute=start_time.minute)
     section["dtend"] = section["dtstart"].replace(hour=end_time.hour, minute=end_time.minute)
+
+
+def create_non_periodic_section(service, cal_id, section):
+    dates: List[datetime.date] = section.pop("dates")
+    dtstart: datetime.datetime = section.pop("dtstart")
+    dtend: datetime.datetime = section.pop("dtend")
+
+    for date in dates:
+        event = dict(
+            dtstart=dtstart.combine(date, dtstart.time(), dtstart.tzinfo),
+            dtend=dtend.combine(date, dtend.time(), dtend.tzinfo),
+        )
+        event.update(**section)
+        create_event(service, cal_id, event)
+
 
 
 def make_rrule(section, final_date):
