@@ -37,6 +37,17 @@ def parse_schedule(schedule: str) -> List[dict]:
     return sections
 
 
+def parse_new_schedule(schedule: str) -> List[dict]:
+    lines = schedule.splitlines()
+    sections = []
+    n = 0 
+    while (len(lines) > n):
+        pass
+        # 
+    return sections
+
+
+
 def extract_summary(title_line: str, type_line: str):  # COP 3502 (LEC)
     return f"{title_line[0:8]} ({type_line[0:3]})"
 
@@ -47,5 +58,5 @@ def extract_time_attributes(time_line: str) -> Tuple[str, str, List[str]]:  # Mo
     return start_time, end_time, weekdays
 
 
-def extract_time_of_the_day(time_of_the_day: str) -> datetime.time:  # 9:30AM
+def extract_time_of_the_day(time_of_the_day: str) -> datetime.time:   # 9:30AM
     return datetime.datetime.strptime(time_of_the_day, TIME_FORMAT).time()
