@@ -24,7 +24,7 @@ class SchedulerGui:
         try:
             schedule.main(self.schedule_entry.get("1.0", tk.END))
         except Exception as e:
-            with open('log', 'a') as f:
+            with open('log.txt', 'a') as f:
                 self.label_text.set('ERROR OCCURRED. CHECK LOG FILE')
                 f.write(str(e))
                 f.write(traceback.format_exc())
