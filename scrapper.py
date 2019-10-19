@@ -43,8 +43,9 @@ def scrap_no_school_events(year, term):
             continue
         scrapped_events.append(dict(
             summary=event.find("span", {"class": "summary"}).get_text(),
-            description=description,
-            raw_dtstart=dtstart,
-            raw_dtend=dtend
+            dtstart=dtstart,
+            dtend=dtend
         ))
+        if description:
+            scrapped_events[-1]['description'] = description
     return scrapped_events

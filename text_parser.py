@@ -1,62 +1,33 @@
-import datetime
-from typing import List, Tuple
+from typing import List, Tuple, Union
+import re
 
 
-TIME_FORMAT = "%I:%M%p"
-WEEKDAYS = {
-    "Mo": 0,
-    "Tu": 1,
-    "We": 2,
-    "Th": 3,
-    "Fr": 4,
-    "Sa": 5,
-    "Su": 6
-}
-
-
-def parse_schedule(schedule: str) -> List[dict]:
-    """ Parses a given file returning a list of section instances """
-    lines = schedule.splitlines()
-    sections = []
-    n = 0  # Line counter
-    while (len(lines) > n):
-        if not lines[n + 2].startswith("Online"):  # Skip online classes
-            title_line, type_line, time_line, location_line = [line.strip() for line in lines[n:n + 4]]
-            start_time, end_time, weekday_strings = extract_time_attributes(time_line)
-            sections.append(dict(
-                summary=extract_summary(title_line, type_line),
-                start_time=extract_time_of_the_day(start_time),
-                end_time=extract_time_of_the_day(end_time),
-                weekday_strings=weekday_strings,
-                weekday_ints=[WEEKDAYS[d] for d in weekday_strings],
-                dates=[],
-                location=location_line.replace("    ", " ").replace("  ", " ")))
-            n += 4
-        else:
-            n += 3  # Online classes have only 3 lines
+def parse_schedule(schedule: str) -> List[Union[str, List[str]]]:
+    re_summary = re.compile(r"[A-Z]{3} \d{4}[A-Z]?")
+    re_details = re.compile(r"(?:[A-Z][a-z]+\n)?(?:[A-Z][a-z])+ \d\d?:\d\d(?:[A-Za-z:\-\s\d,])+.+")  # Good luck figuring this out!
+    class_summaries = re_summary.findall(schedule)
+    classes = re_summary.split(schedule)[1:]  # classes[0] == ''
+    sections: List[Union[List[str], str]] = []
+    for class_summary, class_info in zip(class_summaries, classes):
+        if "Dropped" in class_info or "Online" in class_info:
+            continue
+        current_sections = re_details.findall(class_info)
+        print(current_sections)
+        for section in current_sections:
+            lines = section.splitlines()
+            if " - " not in lines[0]:  # If it's not a recurrence line
+                section_type = last_type = lines.pop(0)
+            else:
+                section_type = last_type
+            recurrence, location, *professors, dtstart_and_dtend = lines
+            professors = [p.replace(",", "") for p in professors]
+            start_time, end_time, weekdays = extract_time_attributes(recurrence)
+            dtstart, _, dtend = dtstart_and_dtend.split(" ")
+            sections.append([class_summary, section_type, weekdays, start_time, end_time, location, professors, dtstart, dtend])
     return sections
-
-
-def parse_new_schedule(schedule: str) -> List[dict]:
-    lines = schedule.splitlines()
-    sections = []
-    n = 0 
-    while (len(lines) > n):
-        pass
-        # 
-    return sections
-
-
-
-def extract_summary(title_line: str, type_line: str):  # COP 3502 (LEC)
-    return f"{title_line[0:8]} ({type_line[0:3]})"
 
 
 def extract_time_attributes(time_line: str) -> Tuple[str, str, List[str]]:  # MoWeFr 9:30AM - 10:20AM
     weekdays_str, start_time, _, end_time = time_line.split(" ")
     weekdays = [weekdays_str[i:i + 2] for i in range(0, len(weekdays_str), 2)]
     return start_time, end_time, weekdays
-
-
-def extract_time_of_the_day(time_of_the_day: str) -> datetime.time:   # 9:30AM
-    return datetime.datetime.strptime(time_of_the_day, TIME_FORMAT).time()
