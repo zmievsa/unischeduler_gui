@@ -9,7 +9,7 @@ def parse_schedule(schedule: str) -> List[Union[str, List[str]]]:
     classes = re_summary.split(schedule)[1:]  # classes[0] == ''
     sections: List[Union[List[str], str]] = []
     for class_summary, class_info in zip(class_summaries, classes):
-        if "Dropped" in class_info or "Online" in class_info:
+        if "Dropped" in class_info or "Online" in class_info or "Withdrawn" in class_info:
             continue
         current_sections = re_details.findall(class_info)
         print(current_sections)
