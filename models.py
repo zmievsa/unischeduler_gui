@@ -4,6 +4,9 @@ from icalendar import prop
 import pytz
 
 TIME_FORMAT = "%I:%M%p"
+ICAL_TIME_FORMAT = "%H%M%S"
+ICAL_TIMELESS_DATETIME_FORMAT = "%Y%m%dT{time}"  # Created for cases when we have a date for something but not the time yet
+ICAL_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
 TZ = pytz.timezone("America/New_York")
 UTC = pytz.timezone("UTC")
 WEEKDAYS = {
@@ -60,10 +63,11 @@ class Section(CalendarEvent):
         self.start = start.replace(hour=start_time.hour, minute=start_time.minute)
         self.end = start.replace(hour=end_time.hour, minute=end_time.minute)
 
-    def to_ical(self) -> dict:
+    def to_ical(self, exdate_template=None) -> dict:
         return dict(
             location=self.location,
             rrule=self.get_rrule(),
+            exdate=self.get_exdate(exdate_template) if exdate_template else None,
             **super().to_ical()
         )
 
@@ -71,7 +75,7 @@ class Section(CalendarEvent):
         return "RRULE:" + to_str(prop.vRecur(FREQ="WEEKLY", BYDAY=self.weekdays, UNTIL=self.last_date))
 
     def get_exdate(self, exdate_template: str):
-        return exdate_template.replace("000000", self.start.strftime("%H%M%S"))  # "000000" is an empty time on each exdate
+        return exdate_template.format(time=self.start.strftime(ICAL_TIME_FORMAT))
     
     def get_year(self):
         return self.start.year
@@ -110,8 +114,8 @@ def get_date(date: str, format, timezone=TZ) -> dt.datetime:
     return timezone.localize(datetime) if timezone else datetime
 
 
-def to_ical(dt: dt.datetime) -> str:
-    return dt.strftime("%Y-%m-%dT%H:%M:%S")
+def to_ical(dt: dt.datetime, fmt=ICAL_DATETIME_FORMAT) -> str:
+    return dt.strftime(fmt)
     # 1996-12-19T16:39:57-08:00
 
 

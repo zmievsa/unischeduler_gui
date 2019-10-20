@@ -3,10 +3,9 @@ from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import client, file, tools
 
-from icalendar import prop
 from scrapper import scrap_no_school_events
 from text_parser import parse_schedule
-from models import CalendarEvent, Section
+from models import CalendarEvent, Section, to_ical, ICAL_TIMELESS_DATETIME_FORMAT
 
 from typing import List
 
@@ -24,7 +23,7 @@ def main(schedule: str):
     service = get_calendar_service()
     cal_id = create_calendar(service, year, term)
     for section in sections:
-        create_event(service, cal_id, section.to_ical(), exdate)
+        create_event(service, cal_id, section.to_ical(exdate))
     for event in no_school_events:
         create_event(service, cal_id, event.to_ical())
 
@@ -44,7 +43,7 @@ def make_exdate_string_template(no_school_events):
             dates += [event.start + datetime.timedelta(i) for i in range(day_count + 1)]
         else:
             dates.append(event.start)
-    return "EXDATE;TZID=America/New_York:" + (",".join([datetime_to_ical(d) for d in dates]))
+    return "EXDATE;TZID=America/New_York:" + (",".join([to_ical(d, ICAL_TIMELESS_DATETIME_FORMAT) for d in dates]))
 
 
 def create_calendar(service, year, term):
@@ -69,13 +68,10 @@ def create_non_periodic_section(service, cal_id, section):
         create_event(service, cal_id, event)
 
 
-def datetime_to_ical(dt):
-    return prop.vDatetime(dt).to_ical().decode("UTF-8")
-
-
-def create_event(service, cal_id, event, exdate=None):
+def create_event(service, cal_id, event):
     print(event)
     rrule = event.pop("rrule", None)
+    exdate = event.pop("exdate", None)
     start, end = event.pop('start'), event.pop('end')
     event_body = {
         'start': {
