@@ -17,7 +17,7 @@ class SchedulerGui:
         self.schedule_entry.pack()
 
         self.enter_button = tk.Button(master, text="Enter", command=self.create_schedule)
-        self.enter_button.pack(fill=tk.X)
+        self.enter_button.pack(fill=tk.BOTH)
         master.bind("<Button-3>", self.right_click)
     
     def right_click(self, event=None):
@@ -46,7 +46,7 @@ class SchedulerGui:
         else:
             self.label_text.set('Finished!')
         finally:
-            self.enter_button.pack()
+            self.enter_button.pack(fill=tk.BOTH)
             
 
 
