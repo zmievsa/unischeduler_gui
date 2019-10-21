@@ -3,6 +3,7 @@ from tkinter import filedialog
 import schedule
 import traceback
 from requests import ConnectionError
+import os
 
 
 class SchedulerGui:
@@ -31,12 +32,13 @@ class SchedulerGui:
         try:
             calendar = schedule.main(self.schedule_entry.get("1.0", tk.END))
             filename =  filedialog.asksaveasfilename(initialdir="/", title="Select file to export your schedule to", filetypes = (("Icalendar files", "*.ics"),))
-            filename += "" if filename.lower().endswith(".ics") else ".ics" 
+            filename += "" if filename.lower().endswith(".ics") else ".ics"
             with open(filename, "wb") as f:
                 print(calendar.decode("UTF-8"))
                 f.write(calendar)
         except Exception as e:
-            with open('log.txt', 'a') as f:
+            log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "log.txt")
+            with open(log_path, 'a') as f:
                 f.write(str(e))
                 f.write(traceback.format_exc())
             if isinstance(e, ConnectionError):
