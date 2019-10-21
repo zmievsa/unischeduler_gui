@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import filedialog
 import schedule
 import traceback
 from requests import ConnectionError
@@ -29,7 +30,9 @@ class SchedulerGui:
         self.master.update()
         try:
             calendar = schedule.main(self.schedule_entry.get("1.0", tk.END))
-            with open("schedule.ics", "wb") as f:
+            filename =  filedialog.asksaveasfilename(initialdir="/", title="Select file to export your schedule to", filetypes = (("Icalendar files", "*.ics"),))
+            filename += "" if filename.lower().endswith(".ics") else ".ics" 
+            with open(filename, "wb") as f:
                 print(calendar.decode("UTF-8"))
                 f.write(calendar)
         except Exception as e:
