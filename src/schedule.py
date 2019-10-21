@@ -1,9 +1,4 @@
 import datetime
-from googleapiclient.discovery import build
-from httplib2 import Http
-from oauth2client import client, file, tools
-from copy import deepcopy
-
 import icalendar as ical
 import datetime as dt
 from scrapper import scrap_no_school_events
