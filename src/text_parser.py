@@ -12,7 +12,6 @@ def parse_schedule(schedule: str) -> List[Union[str, List[str]]]:
         if "Dropped" in class_info or "Online" in class_info or "Withdrawn" in class_info:
             continue
         current_sections = re_details.findall(class_info)
-        print(current_sections)
         for section in current_sections:
             lines = section.splitlines()
             if " - " not in lines[0]:  # If it's not a recurrence line
