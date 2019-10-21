@@ -2,48 +2,42 @@ import datetime
 from googleapiclient.discovery import build
 from httplib2 import Http
 from oauth2client import client, file, tools
+from copy import deepcopy
 
+import icalendar as ical
+import datetime as dt
 from scrapper import scrap_no_school_events
 from text_parser import parse_schedule
-from models import CalendarEvent, Section, to_ical, ICAL_TIMELESS_DATETIME_FORMAT
+from models import CalendarEvent, RegularEvent, ClassSection
 
 from typing import List
-
-TEST = False
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/calendar'
 
 
 def main(schedule: str):
-    sections = [Section(*s) for s in parse_schedule(schedule)]
+    sections = [ClassSection(*s) for s in parse_schedule(schedule)]
     year, term = sections[0].get_year(), sections[0].get_term()
-    no_school_events = [CalendarEvent(**e) for e in scrap_no_school_events(year, term)]
-    exdate = make_exdate_string_template(no_school_events)
-    service = get_calendar_service()
-    cal_id = create_calendar(service, year, term)
+    no_school_events = [RegularEvent(**e) for e in scrap_no_school_events(year, term)]
+    exdates = make_timeless_exdates(no_school_events)
+    cal = ical.Calendar(summary=f"UCF {'Spring'} {'2020'}", timezone="America/New_York")
     for section in sections:
-        create_event(service, cal_id, section.to_ical(exdate))
+        cal.add_component(create_event(section, exdates))
     for event in no_school_events:
-        create_event(service, cal_id, event.to_ical())
-
-    global TEST
-    if TEST and __name__ == "__main__":
-        answer = input("\nTHIS WAS A TEST RUN. Do you want to do a real run now? (y/n): ")
-        if answer.strip().lower().startswith("y"):
-            TEST = False
-            main(schedule)
+        cal.add_component(create_event(event))
+    return cal.to_ical()
 
 
-def make_exdate_string_template(no_school_events):
+def make_timeless_exdates(no_school_events):
     dates = []
     for event in no_school_events:
-        day_count = (event.end - event.start).days
+        day_count = (event['dtend'] - event['dtstart']).days
         if day_count > 1:
-            dates += [event.start + datetime.timedelta(i) for i in range(day_count + 1)]
+            dates += [event['dtstart'] + datetime.timedelta(i) for i in range(day_count + 1)]
         else:
-            dates.append(event.start)
-    return "EXDATE;TZID=America/New_York:" + (",".join([to_ical(d, ICAL_TIMELESS_DATETIME_FORMAT) for d in dates]))
+            dates.append(event['dtstart'])
+    return dates
 
 
 def create_calendar(service, year, term):
@@ -68,30 +62,15 @@ def create_non_periodic_section(service, cal_id, section):
         create_event(service, cal_id, event)
 
 
-def create_event(service, cal_id, event):
-    print(event)
-    rrule = event.pop("rrule", None)
-    exdate = event.pop("exdate", None)
-    start, end = event.pop('start'), event.pop('end')
-    event_body = {
-        'start': {
-            'dateTime': start,
-            'timeZone': 'America/New_York'
-        },
-        'end': {
-            'dateTime': end,
-            'timeZone': 'America/New_York'
-        },
-    }
-    if rrule is not None:
-        event_body['recurrence'] = [
-            rrule,
-            exdate
-        ]
-    event_body.update(**event)
-    if not TEST:
-        service.events().insert(calendarId=cal_id, body=event_body).execute()
-    print("Executed")
+def create_event(event: CalendarEvent, timeless_exdates=None):
+    ical_event = ical.Event()
+    for name, value in event.items():
+        ical_event.add(name, value)
+    if timeless_exdates:
+        start_time = ical_event['dtstart'].dt.time()
+        exdates = [dt.datetime.combine(e, start_time) for e in timeless_exdates]
+        ical_event.add("exdate", exdates)
+    return ical_event
 
 
 def get_calendar_service():
@@ -107,7 +86,9 @@ def get_calendar_service():
 
 
 if __name__ == '__main__':
-    TEST = True
     with open("schedule (new).txt") as f:
         schedule = f.read()
-    main(schedule)
+    icalendar = main(schedule)
+    with open("schedule.ics", "wb") as f2:
+        print(icalendar.decode("UTF-8"))
+        f2.write(icalendar)

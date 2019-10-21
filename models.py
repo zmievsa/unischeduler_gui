@@ -20,68 +20,48 @@ WEEKDAYS = {
 }
 
 
-class CalendarEvent:
-    DATE_FORMAT = "%Y-%m-%d"
+class CalendarEvent(dict):
+    """
+    Necessary keys:
+    dtstart: datetime
+    dtend: datetime
     summary: str
-    start: dt.datetime
-    end: dt.datetime
-    options: dict
 
-    def __init__(self, summary: str, dtstart: str, dtend: str, **options):
-        self.summary = summary
-        self.start = get_date(dtstart, self.DATE_FORMAT)
-        if dtend is None:
-            self.end = (self.start + dt.timedelta(days=1))
+    """
+    pass
+
+
+class RegularEvent(CalendarEvent):
+    DATE_FORMAT = "%Y-%m-%d"
+
+    def __init__(self, summary: str, raw_dtstart: str, raw_dtend: str, *args, **kwargs):
+        start = get_date(raw_dtstart, self.DATE_FORMAT, UTC).date()
+        if raw_dtend is None:
+            end = (start + dt.timedelta(days=1))
         else:
-            self.end = get_date(dtend, self.DATE_FORMAT)
-        self.options = options
-    
-    def to_ical(self):
-        return dict(
-            summary=self.summary,
-            start=to_ical(self.start),
-            end=to_ical(self.end),
-            **self.options
-        )
+            end = get_date(raw_dtend, self.DATE_FORMAT, UTC).date()
+        super().__init__(dtstart=start, dtend=end, summary=summary)
+        
 
 
-class Section(CalendarEvent):
+class ClassSection(CalendarEvent):
     DATE_FORMAT = "%m/%d/%Y"
-    location: str
-    last_date: dt.datetime
-    weekdays: List[str]
 
-    def __init__(self, class_summary, section_type, weekdays: List[str], start_time, end_time, location, professors: List[str], dtstart: str, last_date, **options):
-        self.options = options
-        self.summary = f"{class_summary} ({section_type})"
-        self.location = location
-        self.weekdays = weekdays
+    def __init__(self, class_summary, section_type, weekdays: List[str], start_time, end_time, location, professors: List[str], dtstart, last_date, **kwargs):
+        summary = f"{class_summary} ({section_type})"
         start_time, end_time = get_time(start_time), get_time(end_time)
-        start, self.last_date = get_date(dtstart, self.DATE_FORMAT), get_date(last_date, self.DATE_FORMAT, UTC)
-        weekday_ints = [WEEKDAYS[d] for d in self.weekdays]
-        start = get_closest_weekday(start, weekday_ints)
-        self.start = start.replace(hour=start_time.hour, minute=start_time.minute)
-        self.end = start.replace(hour=end_time.hour, minute=end_time.minute)
-
-    def to_ical(self, exdate_template=None) -> dict:
-        return dict(
-            location=self.location,
-            rrule=self.get_rrule(),
-            exdate=self.get_exdate(exdate_template) if exdate_template else None,
-            **super().to_ical()
-        )
-
-    def get_rrule(self):
-        return "RRULE:" + to_str(prop.vRecur(FREQ="WEEKLY", BYDAY=self.weekdays, UNTIL=self.last_date))
-
-    def get_exdate(self, exdate_template: str):
-        return exdate_template.format(time=self.start.strftime(ICAL_TIME_FORMAT))
+        start, last_date = get_date(dtstart, self.DATE_FORMAT), get_date(last_date, self.DATE_FORMAT, UTC)
+        start = get_closest_weekday(start, weekdays)
+        dtstart = dt.datetime.combine(start, start_time)
+        dtend = dt.datetime.combine(start, end_time)
+        rrule = prop.vRecur(FREQ="WEEKLY", BYDAY=weekdays, UNTIL=last_date)
+        super().__init__(dtstart=dtstart, dtend=dtend, rrule=rrule, summary=summary, location=location)
     
     def get_year(self):
-        return self.start.year
+        return self['dtstart'].year
     
     def get_term(self):
-        start_month = self.start.month
+        start_month = self['dtstart'].month
         if 8 <= start_month <= 10:
             return "Fall"
         elif 1 <= start_month <= 3:
@@ -90,8 +70,18 @@ class Section(CalendarEvent):
             return "Summer"
         
 
+def get_date(date: str, format, timezone=TZ) -> dt.datetime:
+    datetime = dt.datetime.strptime(date, format)
+    return timezone.localize(datetime) if timezone else datetime
+
+
+def get_time(time_of_the_day: str) -> dt.time:   # 9:30AM
+    return dt.datetime.strptime(time_of_the_day, TIME_FORMAT).time()
+
+
 def get_closest_weekday(starting_datetime, needed_days, past=False):
     # Past means that we're searching the closest weekday in the past instead of the future
+    needed_days = [WEEKDAYS[d] for d in needed_days]
     starting_day = starting_datetime.weekday()
     possibilities = []
     for needed_day in needed_days:
@@ -103,20 +93,6 @@ def get_closest_weekday(starting_datetime, needed_days, past=False):
     if past:
         time_difference *= -1
     return starting_datetime + time_difference
-
-
-def get_time(time_of_the_day: str) -> dt.time:   # 9:30AM
-    return dt.datetime.strptime(time_of_the_day, TIME_FORMAT).time()
-
-
-def get_date(date: str, format, timezone=TZ) -> dt.datetime:
-    datetime = dt.datetime.strptime(date, format)
-    return timezone.localize(datetime) if timezone else datetime
-
-
-def to_ical(dt: dt.datetime, fmt=ICAL_DATETIME_FORMAT) -> str:
-    return dt.strftime(fmt)
-    # 1996-12-19T16:39:57-08:00
 
 
 def to_str(ical_object):

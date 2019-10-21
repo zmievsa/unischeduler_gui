@@ -2,5 +2,6 @@
 *.json
 *.txt
 *.code-workspace
+*.ics
 
 mypy_cache
