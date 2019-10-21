@@ -3,5 +3,7 @@
 *.txt
 *.code-workspace
 *.ics
+build
+dist
 
 mypy_cache
