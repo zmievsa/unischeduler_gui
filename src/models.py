@@ -71,7 +71,13 @@ class ClassSection(CalendarEvent):
         
 
 def get_date(date: str, format, timezone=TZ) -> dt.datetime:
-    datetime = dt.datetime.strptime(date, format)
+    try:
+        datetime = dt.datetime.strptime(date, format)
+    except ValueError:
+        try:
+            datetime = dt.datetime.strptime(date, "%Y/%m/%d")
+        except ValueError:
+            datetime = dt.datetime.strptime(date, "%d/%m/%Y")
     return timezone.localize(datetime) if timezone else datetime
 
 
