@@ -16,6 +16,11 @@ class SchedulerGui:
 
         self.enter_button = tk.Button(master, text="Enter", command=self.create_schedule)
         self.enter_button.pack(fill=tk.X)
+        master.bind("<Button-3>", self.right_click)
+    
+    def right_click(self, event=None):
+        self.schedule_entry.delete("1.0", tk.END)
+        self.schedule_entry.insert("1.0", self.master.clipboard_get())
 
     def create_schedule(self, event=None):
         self.enter_button.pack_forget()
