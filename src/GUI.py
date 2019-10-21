@@ -1,6 +1,7 @@
 import tkinter as tk
 import schedule
 import traceback
+from requests import ConnectionError
 
 
 class SchedulerGui:
@@ -33,9 +34,12 @@ class SchedulerGui:
                 f.write(calendar)
         except Exception as e:
             with open('log.txt', 'a') as f:
-                self.label_text.set('ERROR OCCURRED. CHECK LOG FILE')
                 f.write(str(e))
                 f.write(traceback.format_exc())
+            if isinstance(e, ConnectionError):
+                self.label_text.set("There's a problem with your internet connection. Please, try again.")
+            else:
+                self.label_text.set('UNKNOWN ERROR OCCURRED. CHECK LOG FILE')
         else:
             self.label_text.set('Finished!')
         finally:
