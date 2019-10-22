@@ -29,7 +29,8 @@ def scrap_no_school_events(year, term):
     for event in raw_events:
         dtstart = dtend = description = None
         for elem in event.find_all("abbr"):
-            class_ = elem['class'] if isinstance(elem['class'], str) else elem['class'][0]
+            class_ = elem['class'] if isinstance(
+                elem['class'], str) else elem['class'][0]
             if class_ == "dtstart":
                 dtstart = elem['title']
             elif class_ == "dtend":

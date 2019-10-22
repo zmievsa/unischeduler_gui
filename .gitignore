@@ -7,4 +7,6 @@ log.txt
 build
 dist
 
-mypy_cache
+.mypy_cache
+*.exe
+*.app

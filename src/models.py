@@ -1,11 +1,13 @@
 import datetime as dt
 from typing import List
-from icalendar import prop
+
 import pytz
+from icalendar import prop
 
 TIME_FORMAT = "%I:%M%p"
 ICAL_TIME_FORMAT = "%H%M%S"
-ICAL_TIMELESS_DATETIME_FORMAT = "%Y%m%dT{time}"  # Created for cases when we have a date for something but not the time yet
+# Created for cases when we have a date for something but not the time yet
+ICAL_TIMELESS_DATETIME_FORMAT = "%Y%m%dT{time}"
 ICAL_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
 TZ = pytz.timezone("America/New_York")
 UTC = pytz.timezone("UTC")
@@ -41,7 +43,6 @@ class RegularEvent(CalendarEvent):
         else:
             end = get_date(raw_dtend, self.DATE_FORMAT, UTC).date()
         super().__init__(dtstart=start, dtend=end, summary=summary)
-        
 
 
 class ClassSection(CalendarEvent):
@@ -50,16 +51,18 @@ class ClassSection(CalendarEvent):
     def __init__(self, class_summary, section_type, weekdays: List[str], start_time, end_time, location, professors: List[str], dtstart, last_date, **kwargs):
         summary = f"{class_summary} ({section_type})"
         start_time, end_time = get_time(start_time), get_time(end_time)
-        start, last_date = get_date(dtstart, self.DATE_FORMAT), get_date(last_date, self.DATE_FORMAT, UTC)
+        start, last_date = get_date(dtstart, self.DATE_FORMAT), get_date(
+            last_date, self.DATE_FORMAT, UTC)
         start = get_closest_weekday(start, weekdays)
         dtstart = dt.datetime.combine(start, start_time)
         dtend = dt.datetime.combine(start, end_time)
         rrule = prop.vRecur(FREQ="WEEKLY", BYDAY=weekdays, UNTIL=last_date)
-        super().__init__(dtstart=dtstart, dtend=dtend, rrule=rrule, summary=summary, location=location)
-    
+        super().__init__(dtstart=dtstart, dtend=dtend,
+                         rrule=rrule, summary=summary, location=location)
+
     def get_year(self):
         return self['dtstart'].year
-    
+
     def get_term(self):
         start_month = self['dtstart'].month
         if 8 <= start_month <= 10:
@@ -68,7 +71,7 @@ class ClassSection(CalendarEvent):
             return "Spring"
         else:
             return "Summer"
-        
+
 
 def get_date(date: str, format, timezone=TZ) -> dt.datetime:
     try:
@@ -91,8 +94,10 @@ def get_closest_weekday(starting_datetime, needed_days, past=False):
     starting_day = starting_datetime.weekday()
     possibilities = []
     for needed_day in needed_days:
-        days_difference = (starting_day - needed_day) if past else (needed_day - starting_day)
-        if days_difference < 0:  # Target day has (not) already happened this week
+        days_difference = (
+            starting_day - needed_day) if past else (needed_day - starting_day)
+        # Target day has (not) already happened this week
+        if days_difference < 0:
             days_difference += 7
         possibilities.append(days_difference)
     time_difference = dt.timedelta(min(possibilities))
