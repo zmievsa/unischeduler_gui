@@ -3,7 +3,6 @@ import sys
 from pathlib import Path
 
 import pip
-import PyInstaller.__main__
 from setuptools import setup
 
 setup_requires = ["icalendar", "bs4", "requests", "py2app", "pyinstaller"]
@@ -18,6 +17,7 @@ curpath = Path(__file__).parent
 NAME = "Scheduler"
 APP = [curpath / "src/GUI.py"]
 if sys.platform.startswith("win32"):
+    import PyInstaller.__main__
     extension = "exe"
     final_dir = "Windows"
     app_path = Path(APP[0])
