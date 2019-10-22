@@ -1,11 +1,12 @@
 import shutil
 import sys
 from pathlib import Path
+from unittest.mock import patch
 
 import pip
-from setuptools import setup
 
-setup_requires = ["icalendar", "bs4", "requests", "py2app", "pyinstaller"]
+setup_requires = ["setuptools", "icalendar",
+                  "bs4", "requests", "py2app", "pyinstaller"]
 if hasattr(pip, 'main'):
     pip_main = pip.main
 else:
@@ -28,16 +29,20 @@ if sys.platform.startswith("win32"):
     new_app_path.rename(app_path)
     Path(curpath / f"{NAME}.spec").unlink()
 elif sys.platform.startswith("darwin"):
-    # Supply "py2app" CLI arg when on OS X
+    from setuptools import setup
     extension = "app"
     final_dir = "OS X"
-    setup(
-        name=NAME,
-        app=APP,
-        data_files=[],
-        options={"py2app": {}},
-        setup_requires=setup_requires
-    )
+    with patch('sys.argv', ["setup.py", "py2app"]):
+        setup(
+            name=NAME,
+            app=APP,
+            data_files=[],
+            options={"py2app": {}},
+            setup_requires=setup_requires
+        )
+else:
+    #  No building for linux
+    exit(0)
 
 file_name = f"{NAME}.{extension}"
 release_folder = Path(curpath / f"release/{final_dir}")
