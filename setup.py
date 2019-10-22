@@ -28,9 +28,9 @@ if sys.platform.startswith("win32"):
     new_app_path.rename(app_path)
     Path(curpath / f"{NAME}.spec").unlink()
 elif sys.platform.startswith("darwin"):
+    # Supply py2app CLI arg when on OS X
     extension = "app"
     final_dir = "OS X"
-    sys.argv = [sys.argv[0] + "py2app"]
     setup(
         name=NAME,
         app=APP,
