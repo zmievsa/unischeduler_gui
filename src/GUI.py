@@ -3,10 +3,8 @@ import tkinter as tk
 import traceback
 from tkinter import filedialog
 
-from requests import ConnectionError
-
 import schedule
-
+from util import SchedulerError
 
 class SchedulerGui:
     def __init__(self, master):
@@ -46,9 +44,8 @@ class SchedulerGui:
             with open(log_path, 'a') as f:
                 f.write(str(e))
                 f.write(traceback.format_exc())
-            if isinstance(e, ConnectionError):
-                self.label_text.set(
-                    "There's a problem with your internet connection. Please, try again.")
+            if isinstance(e, SchedulerError):
+                self.label_text.set(str(e))
             else:
                 self.label_text.set('UNKNOWN ERROR OCCURRED. CHECK LOG FILE')
         else:
