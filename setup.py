@@ -16,17 +16,17 @@ setup_requires = []
 
 curpath = Path(__file__).parent
 NAME = "Scheduler"
-APP = [curpath / "src/GUI.py"]
+APP_PATH = curpath / "src/GUI.py"
+APP = [str(APP_PATH)]
 if sys.platform.startswith("win32"):
     import PyInstaller.__main__
     extension = "exe"
     final_dir = "Windows"
-    app_path = Path(APP[0])
     new_app_path = Path(curpath / "src/GUI.pyw")
-    app_path.rename(new_app_path)
+    APP_PATH.rename(new_app_path)
     PyInstaller.__main__.run(
         ["-n", NAME, "--onefile", "--clean", str(new_app_path)])
-    new_app_path.rename(app_path)
+    new_app_path.rename(APP_PATH)
     Path(curpath / f"{NAME}.spec").unlink()
 elif sys.platform.startswith("darwin"):
     from setuptools import setup
