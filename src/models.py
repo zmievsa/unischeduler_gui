@@ -4,6 +4,8 @@ from typing import List, Union
 import pytz
 from icalendar import prop
 
+from util import SchedulerError
+
 TIME_FORMAT = "%I:%M%p"
 ICAL_TIME_FORMAT = "%H%M%S"
 # Created for cases when we have a date for something but not the time yet
@@ -83,7 +85,7 @@ def get_date(date: str, format: Union[List[str], str], timezone=TZ) -> dt.dateti
         else:
             return timezone.localize(datetime) if timezone else datetime
     else:
-        raise err
+        raise SchedulerError("Something's weird about your schedule. Ask my author for help.") from err
 
 
 def get_time(time_of_the_day: str) -> dt.time:   # 9:30AM

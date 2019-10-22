@@ -6,11 +6,15 @@ from models import CalendarEvent, ClassSection, RegularEvent
 from scrapper import scrap_no_school_events
 from text_parser import parse_schedule
 
+from util import SchedulerError
+
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/calendar'
 
 
 def main(schedule: str):
+    if not schedule.strip():
+        raise SchedulerError("You inputted an empty schedule.")
     sections = [ClassSection(*s) for s in parse_schedule(schedule)]
     year, term = sections[0].get_year(), sections[0].get_term()
     no_school_events = [RegularEvent(**e)
