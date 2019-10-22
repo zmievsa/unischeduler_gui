@@ -1,6 +1,7 @@
 *.pyc
 *.json
-*.txt
+schedule.txt
+log.txt
 *.code-workspace
 *.ics
 build
