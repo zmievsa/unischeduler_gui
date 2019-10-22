@@ -1,5 +1,5 @@
 import datetime as dt
-from typing import List
+from typing import List, Union
 
 import pytz
 from icalendar import prop
@@ -46,13 +46,13 @@ class RegularEvent(CalendarEvent):
 
 
 class ClassSection(CalendarEvent):
-    DATE_FORMAT = "%m/%d/%Y"
+    DATE_FORMATS = ["%m/%d/%Y", "%Y/%m/%d", "%d/%m/%Y"]  # Trust me with this
 
     def __init__(self, class_summary, section_type, weekdays: List[str], start_time, end_time, location, professors: List[str], dtstart, last_date, **kwargs):
         summary = f"{class_summary} ({section_type})"
         start_time, end_time = get_time(start_time), get_time(end_time)
-        start, last_date = get_date(dtstart, self.DATE_FORMAT), get_date(
-            last_date, self.DATE_FORMAT, UTC)
+        start, last_date = get_date(dtstart, self.DATE_FORMATS), get_date(
+            last_date, self.DATE_FORMATS, UTC)
         start = get_closest_weekday(start, weekdays)
         dtstart = dt.datetime.combine(start, start_time)
         dtend = dt.datetime.combine(start, end_time)
@@ -73,15 +73,17 @@ class ClassSection(CalendarEvent):
             return "Summer"
 
 
-def get_date(date: str, format, timezone=TZ) -> dt.datetime:
-    try:
-        datetime = dt.datetime.strptime(date, format)
-    except ValueError:
+def get_date(date: str, format: Union[List[str], str], timezone=TZ) -> dt.datetime:
+    formats = [format] if type(format) is str else format
+    for fmt in formats:
         try:
-            datetime = dt.datetime.strptime(date, "%Y/%m/%d")
-        except ValueError:
-            datetime = dt.datetime.strptime(date, "%d/%m/%Y")
-    return timezone.localize(datetime) if timezone else datetime
+            datetime = dt.datetime.strptime(date, fmt)
+        except ValueError as e:
+            err = e
+        else:
+            return timezone.localize(datetime) if timezone else datetime
+    else:
+        raise err
 
 
 def get_time(time_of_the_day: str) -> dt.time:   # 9:30AM
