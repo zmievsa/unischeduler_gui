@@ -6,6 +6,7 @@ from tkinter import filedialog
 import schedule
 from util import SchedulerError
 
+
 class SchedulerGui:
     def __init__(self, master):
         self.master = master
