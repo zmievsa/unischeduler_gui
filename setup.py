@@ -3,15 +3,6 @@ import sys
 from pathlib import Path
 from unittest.mock import patch
 
-import pip
-
-setup_requires = ["setuptools", "icalendar",
-                  "bs4", "requests", "py2app", "pyinstaller"]
-if hasattr(pip, 'main'):
-    pip_main = pip.main
-else:
-    pip_main = pip._internal.main
-pip_main(['install', "--user"] + setup_requires)
 setup_requires = []
 
 curpath = Path(__file__).parent

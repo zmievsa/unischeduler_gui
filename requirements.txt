@@ -1,0 +1,7 @@
+setuptools
+icalendar
+bs4
+requests
+py2app
+pyinstaller
+PyQt5
