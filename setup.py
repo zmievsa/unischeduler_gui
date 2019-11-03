@@ -7,7 +7,7 @@ setup_requires = []
 
 curpath = Path(__file__).parent
 NAME = "Scheduler"
-APP_PATH = curpath / "src/GUI.py"
+APP_PATH = curpath / "src/GUI_QT.py"
 APP = [str(APP_PATH)]
 if sys.platform.startswith("win32"):
     import PyInstaller.__main__
