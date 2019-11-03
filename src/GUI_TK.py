@@ -1,10 +1,8 @@
-import os
 import tkinter as tk
-import traceback
 from tkinter import filedialog
 
 import schedule
-from util import SchedulerError
+from util import ErrorHandler
 
 
 class SchedulerGui:
@@ -31,28 +29,18 @@ class SchedulerGui:
         self.enter_button.pack_forget()
         self.label_text.set('Starting...')
         self.master.update()
-        try:
+        with ErrorHandler(self.label_text.set):
             calendar = schedule.main(self.schedule_entry.get("1.0", tk.END))
             filename = filedialog.asksaveasfilename(
-                initialdir="/", title="Select file to export your schedule to", filetypes=(("Icalendar files", "*.ics"),))
+                initialdir="/", 
+                title="Select file to export your schedule to",
+                filetypes=(("Icalendar files", "*.ics"),)
+            )
             filename += "" if filename.lower().endswith(".ics") else ".ics"
             with open(filename, "wb") as f:
                 print(calendar.decode("UTF-8"))
                 f.write(calendar)
-        except Exception as e:
-            log_path = os.path.join(os.path.dirname(
-                os.path.abspath(__file__)), "log.txt")
-            with open(log_path, 'a') as f:
-                f.write(str(e))
-                f.write(traceback.format_exc())
-            if isinstance(e, SchedulerError):
-                self.label_text.set(str(e))
-            else:
-                self.label_text.set('UNKNOWN ERROR OCCURRED. CHECK LOG FILE')
-        else:
-            self.label_text.set('Finished!')
-        finally:
-            self.enter_button.pack(fill=tk.BOTH)
+        self.enter_button.pack(fill=tk.BOTH)
 
 
 if __name__ == "__main__":
