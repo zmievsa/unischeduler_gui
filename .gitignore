@@ -1,12 +1,17 @@
+# Automatically created
 *.pyc
 *.json
+*.code-workspace
+.mypy_cache
+
+# Casual work
 schedule.txt
 log.txt
-*.code-workspace
 *.ics
+
+# Building
 build
 dist
-
-.mypy_cache
 *.exe
 *.app
+*.spec
