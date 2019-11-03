@@ -1,4 +1,5 @@
-import os
+from pathlib import Path
+
 
 class SchedulerError(Exception):
     pass
@@ -15,7 +16,7 @@ class ErrorHandler:
         if traceback is None:
             self.handler_method("Finished successfully!")
         else:
-            log_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "log.txt")
+            log_path = Path(__file__).parent / "log.txt"
             with open(log_path, 'a') as f:
                 f.write(str(value))
                 f.write(str(traceback))
