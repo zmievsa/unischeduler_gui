@@ -6,7 +6,7 @@ def parse_schedule(schedule: str) -> List[Union[str, List[str]]]:
     schedule = "\n".join([l.strip()
                           for l in schedule.splitlines() if l.strip()])
     print(schedule)
-    re_summary = re.compile(r"[A-Z]{3} \d{4}[A-Z]?")
+    re_summary = re.compile(r"[A-Z]{3}[A-Z]* \d+[A-Z]? - .+")
     # Good luck figuring this out!
     re_details = re.compile(
         r"(?:[A-Z][a-z]+\n)?(?:[A-Z][a-z])+ \d\d?:\d\d(?:[A-Za-z:\-\s\d,])+.+")
