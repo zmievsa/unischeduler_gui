@@ -16,6 +16,8 @@ def main(schedule: str):
     if not schedule.strip():
         raise SchedulerError("You inputted an empty schedule.")
     sections = [ClassSection(*s) for s in parse_schedule(schedule)]
+    if not sections:
+        raise SchedulerError("Something's weird about your schedule. Contact my author")
     year, term = sections[0].get_year(), sections[0].get_term()
     no_school_events = [RegularEvent(**e)
                         for e in scrap_no_school_events(year, term)]
