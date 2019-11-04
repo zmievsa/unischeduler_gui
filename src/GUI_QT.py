@@ -30,7 +30,6 @@ class GUI(QtWidgets.QMainWindow):
         self.show()
     
     def create_schedule(self):
-        self.button.hide()
         self.label.setText('Starting...')
         with ErrorHandler(self.label.setText):
             calendar = schedule.main(self.input.toPlainText(), self.checkBox.isChecked())
@@ -39,7 +38,6 @@ class GUI(QtWidgets.QMainWindow):
             with open(filename, "wb") as f:
                 print(calendar.decode("UTF-8"))
                 f.write(calendar)
-        self.button.show()
 
 
 
