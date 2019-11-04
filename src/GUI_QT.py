@@ -21,10 +21,11 @@ class GUI(QtWidgets.QMainWindow):
         
         self.input = self.findChild(QtWidgets.QPlainTextEdit, 'plainTextEdit')
         self.button = self.findChild(QtWidgets.QPushButton, 'pushButton')
-        self.button.setText("Enter")
         self.button.hide()
         self.button.show()
         self.button.clicked.connect(self.create_schedule)
+
+        self.checkBox: QtWidgets.QCheckBox = self.findChild(QtWidgets.QCheckBox, 'checkBox')
 
         self.show()
     
@@ -32,7 +33,7 @@ class GUI(QtWidgets.QMainWindow):
         self.button.hide()
         self.label.setText('Starting...')
         with ErrorHandler(self.label.setText):
-            calendar = schedule.main(self.input.toPlainText())
+            calendar = schedule.main(self.input.toPlainText(), self.checkBox.isChecked())
             filename, _ = QtWidgets.QFileDialog.getSaveFileName(caption="Select file to export schedule to", filter="Icalendar files (*.ics)")
             filename += "" if filename.lower().endswith(".ics") else ".ics"
             with open(filename, "wb") as f:

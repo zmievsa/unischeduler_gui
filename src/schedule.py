@@ -1,3 +1,5 @@
+# TODO: Proper timezone handling (so that editing it is easy)
+
 import datetime as dt
 
 import icalendar as ical
@@ -12,23 +14,29 @@ from util import SchedulerError
 SCOPES = 'https://www.googleapis.com/auth/calendar'
 
 
-def main(schedule: str):
+def main(schedule: str, isUCF=False):
     if not schedule.strip():
         raise SchedulerError("You inputted an empty schedule.")
     sections = [ClassSection(*s) for s in parse_schedule(schedule)]
     if not sections:
         raise SchedulerError("Something's weird about your schedule. Contact my author")
     year, term = sections[0].get_year(), sections[0].get_term()
-    no_school_events = [RegularEvent(**e)
-                        for e in scrap_no_school_events(year, term)]
+    no_school_events = get_no_school_events(year, term, isUCF)
     exdates = make_timeless_exdates(no_school_events)
     cal = ical.Calendar(
-        summary=f"UCF {'Spring'} {'2020'}", timezone="America/New_York")
+        summary=f"Classes {term} {year}", timezone="America/New_York")
     for section in sections:
         cal.add_component(create_event(section, exdates))
     for event in no_school_events:
         cal.add_component(create_event(event))
     return cal.to_ical()
+
+
+def get_no_school_events(year, term, isUCF):
+    if isUCF:
+        return [RegularEvent(**e) for e in scrap_no_school_events(year, term)]
+    else:
+        return []
 
 
 def make_timeless_exdates(no_school_events):
