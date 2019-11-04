@@ -34,10 +34,11 @@ class GUI(QtWidgets.QMainWindow):
         with ErrorHandler(self.label.setText):
             calendar = schedule.main(self.input.toPlainText(), self.checkBox.isChecked())
             filename, _ = QtWidgets.QFileDialog.getSaveFileName(caption="Select file to export schedule to", filter="Icalendar files (*.ics)")
-            filename += "" if filename.lower().endswith(".ics") else ".ics"
-            with open(filename, "wb") as f:
-                print(calendar.decode("UTF-8"))
-                f.write(calendar)
+            if filename:
+                filename += "" if filename.lower().endswith(".ics") else ".ics"
+                with open(filename, "wb") as f:
+                    print(calendar.decode("UTF-8"))
+                    f.write(calendar)
 
 
 
