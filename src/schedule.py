@@ -1,5 +1,3 @@
-# TODO: Proper timezone handling (so that editing it is easy)
-
 import datetime as dt
 
 import icalendar as ical
@@ -8,7 +6,7 @@ from models import CalendarEvent, ClassSection, RegularEvent
 from scrapper import scrap_no_school_events
 from text_parser import parse_schedule
 
-from util import SchedulerError
+from util import SchedulerError, TIMEZONE
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = 'https://www.googleapis.com/auth/calendar'
@@ -24,7 +22,7 @@ def main(schedule: str, isUCF=False):
     no_school_events = get_no_school_events(year, term, isUCF)
     exdates = make_timeless_exdates(no_school_events)
     cal = ical.Calendar(
-        summary=f"Classes {term} {year}", timezone="America/New_York")
+        summary=f"Classes {term} {year}", timezone=TIMEZONE)
     for section in sections:
         cal.add_component(create_event(section, exdates))
     for event in no_school_events:

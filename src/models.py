@@ -4,14 +4,14 @@ from typing import List, Union
 import pytz
 from icalendar import prop
 
-from util import SchedulerError
+from util import SchedulerError, TIMEZONE
 
 TIME_FORMAT = "%I:%M%p"
 ICAL_TIME_FORMAT = "%H%M%S"
 # Created for cases when we have a date for something but not the time yet
 ICAL_TIMELESS_DATETIME_FORMAT = "%Y%m%dT{time}"
 ICAL_DATETIME_FORMAT = "%Y-%m-%dT%H:%M:%S"
-TZ = pytz.timezone("America/New_York")
+TZ = pytz.timezone(TIMEZONE)
 UTC = pytz.timezone("UTC")
 WEEKDAYS = {
     "Mo": 0,

@@ -4,6 +4,9 @@ from traceback import print_exception
 import datetime as dt
 from typing import List
 
+
+TIMEZONE = "America/New_York"
+
 # When we put everything in pyinstaller, the directory of data files is in sys._MEIPASS
 try:
     BASE_PATH = Path(sys._MEIPASS)
