@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets, uic
 import sys
-from util import ErrorHandler, BASE_PATH
+from util import ErrorHandler, DATA_FOLDER
 import schedule
 from pathlib import Path
 
@@ -8,7 +8,7 @@ from pathlib import Path
 class GUI(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi(BASE_PATH / 'qtgui.ui', self)
+        uic.loadUi(DATA_FOLDER / 'qtgui.ui', self)
 
         self.setWindowTitle("Scheduler")
         self.setMaximumWidth(self.width())
