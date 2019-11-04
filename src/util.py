@@ -28,7 +28,7 @@ class ErrorHandler:
             self.handler_method("Finished successfully!")
         else:
             log_path = Path(__file__).parent / "log.txt"
-            with open(log_path, 'a') as f:
+            with open(log_path, 'w') as f:
                 print_exception(type, value, traceback)
                 print_exception(type, value, traceback, file=f)
             if isinstance(value, SchedulerError):
