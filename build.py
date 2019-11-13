@@ -16,9 +16,9 @@ elif sys.platform.startswith("darwin"):
     final_dir = "OS X"
     delimeter = ":"
 else:
-    #  No building for linux
-    exit(0)
-
+else:
+    final_dir = "Linux"
+    delimeter = ":"
 
 PyInstaller.__main__.run(
     [
