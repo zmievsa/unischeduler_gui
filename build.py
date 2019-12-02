@@ -16,7 +16,6 @@ elif sys.platform.startswith("darwin"):
     final_dir = "OS X"
     delimeter = ":"
 else:
-else:
     final_dir = "Linux"
     delimeter = ":"
 
