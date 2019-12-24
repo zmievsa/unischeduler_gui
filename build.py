@@ -1,3 +1,4 @@
+# TODO Find the proper sys.platform name for linux distros
 import shutil
 import sys
 from pathlib import Path
@@ -15,9 +16,11 @@ if sys.platform.startswith("win32"):
 elif sys.platform.startswith("darwin"):
     final_dir = "OS X"
     delimeter = ":"
-else:
+elif sys.platform.starstwith("linux"):
     final_dir = "Linux"
     delimeter = ":"
+else:
+    raise NotImplementedError("Compilation to your platform has not been implemented")
 
 PyInstaller.__main__.run(
     [
