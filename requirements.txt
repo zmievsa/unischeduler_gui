@@ -1,6 +1,3 @@
-setuptools
-icalendar
-bs4
-requests
+unischeduler
 pyinstaller
 PyQt5
