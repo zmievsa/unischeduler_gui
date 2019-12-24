@@ -1,8 +1,16 @@
 from PyQt5 import QtWidgets, uic
 import sys
-from util import ErrorHandler, DATA_FOLDER
-import schedule
+import unischeduler
+from unischeduler.errors import ErrorHandler
 from pathlib import Path
+
+
+# When we put everything in pyinstaller, the directory of data files is in sys._MEIPASS
+try:
+    BASE_PATH = Path(sys._MEIPASS)
+except:
+    BASE_PATH = Path(__file__).parent
+DATA_FOLDER = BASE_PATH / "data"
 
 
 class GUI(QtWidgets.QMainWindow):
@@ -32,7 +40,7 @@ class GUI(QtWidgets.QMainWindow):
     def create_schedule(self):
         self.label.setText('Starting...')
         with ErrorHandler(self.label.setText):
-            calendar = schedule.main(self.input.toPlainText(), self.checkBox.isChecked())
+            calendar = unischeduler.main(self.input.toPlainText(), self.checkBox.isChecked())
             filename, _ = QtWidgets.QFileDialog.getSaveFileName(caption="Select file to export schedule to", filter="Icalendar files (*.ics)")
             if filename:
                 filename += "" if filename.lower().endswith(".ics") else ".ics"
