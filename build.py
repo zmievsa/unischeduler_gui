@@ -1,7 +1,7 @@
 import shutil
 import sys
 from pathlib import Path
-from src.util import DATA_FOLDER
+from GUI_QT import DATA_FOLDER
 
 import PyInstaller.__main__
 
