@@ -1,4 +1,3 @@
-# TODO Find the proper sys.platform name for linux distros
 import shutil
 import sys
 from pathlib import Path
