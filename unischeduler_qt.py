@@ -15,7 +15,7 @@ DATA_FOLDER = BASE_PATH / "data"
 class GUI(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        uic.loadUi(DATA_FOLDER / 'qtgui.ui', self)
+        uic.loadUi(DATA_FOLDER / 'mainwindow.ui', self)
 
         self.setWindowTitle("Scheduler")
         self.setMaximumWidth(self.width())
@@ -38,7 +38,7 @@ class GUI(QtWidgets.QMainWindow):
 
     def create_schedule(self):
         self.label.setText('Starting...')
-        with unischeduler.ErrorHandler(self.label.setText):
+        with unischeduler.ErrorHandler(self.label.setText, unknown_error_handler=self.error_handler):
             calendar = unischeduler.main(self.input.toPlainText(), self.checkBox.isChecked())
             filename, _ = QtWidgets.QFileDialog.getSaveFileName(caption="Select file to export schedule to", filter="Icalendar files (*.ics)")
             if filename:
@@ -47,6 +47,16 @@ class GUI(QtWidgets.QMainWindow):
                     print(calendar.decode("UTF-8"))
                     f.write(calendar)
 
+    def error_handler(self, exception: str):
+        qm = QtWidgets.QMessageBox
+        ret = qm.question(self, 'Error handler', "Unknown error encountered. Would you like to save it to some file so that the developer can fix it later for you? He is usually very quick to fix stuff!", qm.Yes | qm.No)
+
+        if ret == qm.Yes:
+            filename, _ = QtWidgets.QFileDialog.getSaveFileName(caption="Select file to save error to")
+            if filename:
+                with open(filename, "w") as f:
+                    f.write(exception)
+        self.label.setText('Send the error file to my developer, please')
 
 
 app = QtWidgets.QApplication(sys.argv)
