@@ -6,7 +6,7 @@ import PyInstaller.__main__
 
 curpath = Path(__file__).parent
 NAME = "Scheduler"
-APP_PATH = curpath / "src/GUI_QT.py"
+APP_PATH = curpath / "unischeduler_qt.py"
 
 if sys.platform.startswith("win32"):
     final_dir = "Windows"

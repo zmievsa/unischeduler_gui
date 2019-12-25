@@ -61,6 +61,7 @@ class GUI(QtWidgets.QMainWindow):
             self.label.setText('Finished with an error')
 
 
-app = QtWidgets.QApplication(sys.argv)
-window = GUI()
-app.exec_()
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    window = GUI()
+    app.exec_()
