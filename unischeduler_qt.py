@@ -56,7 +56,9 @@ class GUI(QtWidgets.QMainWindow):
             if filename:
                 with open(filename, "w") as f:
                     f.write(exception)
-        self.label.setText('Send the error file to my developer, please')
+            self.label.setText('Send the error file to my developer, please')
+        else:
+            self.label.setText('Finished with an error')
 
 
 app = QtWidgets.QApplication(sys.argv)
