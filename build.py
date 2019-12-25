@@ -1,4 +1,3 @@
-import shutil
 import sys
 from pathlib import Path
 from unischeduler_qt import DATA_FOLDER
