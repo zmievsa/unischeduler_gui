@@ -3,6 +3,7 @@
 *.json
 *.code-workspace
 .mypy_cache
+Pipfile*
 
 # Casual work
 schedule.txt
