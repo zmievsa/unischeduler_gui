@@ -1,6 +1,6 @@
 # Unischeduler
 
-## THIS APP IS DEPRECATED. NOW YOU CAN USE UNISCHEDULER FROM SCHEDULER.OATMEAL.CC
+## THIS APP IS DEPRECATED. NOW YOU CAN USE UNISCHEDULER FROM HTTPS://SCHEDULER.OATMEAL.CC
 
 ## Users
 * This app is intended for students in universities where Oracle Peoplesoft Campus Solutions is used (if your student self service is absolutely horrible, your university probably uses PCS)
